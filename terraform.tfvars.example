@@ -1,0 +1,10 @@
+aws_region           = "us-east-1"
+environment          = "prd"
+cluster_name         = "fiap-workshop-eks"
+cluster_version      = "1.30"
+vpc_cidr             = "10.0.0.0/16"
+node_instance_types  = ["t3a.large"]
+node_min_size        = 2
+node_max_size        = 5
+node_desired_size    = 3
+newrelic_license_key = "NRJS-0123456789abcdef"
