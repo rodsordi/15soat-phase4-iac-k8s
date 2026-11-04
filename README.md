@@ -20,3 +20,4 @@ terraform fmt -check -recursive
 terraform init -backend=false
 terraform validate
 ```
+

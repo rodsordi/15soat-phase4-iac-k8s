@@ -4,8 +4,8 @@ variable "cluster_name" {
 }
 
 variable "cluster_version" {
-  type        = string
-  default     = "1.30"
+  type    = string
+  default = "1.30"
 }
 
 variable "vpc_id" {
@@ -19,26 +19,26 @@ variable "subnet_ids" {
 }
 
 variable "node_instance_types" {
-  type        = list(string)
-  default     = ["t3a.large"]
+  type    = list(string)
+  default = ["t3a.large"]
 }
 
 variable "node_min_size" {
-  type        = number
-  default     = 2
+  type    = number
+  default = 2
 }
 
 variable "node_max_size" {
-  type        = number
-  default     = 5
+  type    = number
+  default = 5
 }
 
 variable "node_desired_size" {
-  type        = number
-  default     = 3
+  type    = number
+  default = 3
 }
 
 variable "environment" {
-  type        = string
-  default     = "prd"
+  type    = string
+  default = "prd"
 }

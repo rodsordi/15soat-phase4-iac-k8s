@@ -2,9 +2,10 @@ name: Kubernetes EKS IaC CI/CD
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, feature/phase4 ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, feature/phase4 ]
+  workflow_dispatch:
 
 jobs:
   validate:
