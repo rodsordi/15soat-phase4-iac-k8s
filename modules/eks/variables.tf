@@ -42,3 +42,15 @@ variable "environment" {
   type    = string
   default = "prd"
 }
+
+variable "use_existing_lab_role" {
+  type        = bool
+  description = "Whether to use pre-created AWS Academy LabRole instead of creating new IAM roles"
+  default     = true
+}
+
+variable "lab_role_name" {
+  type        = string
+  description = "Name of the existing IAM LabRole in AWS Academy"
+  default     = "LabRole"
+}
