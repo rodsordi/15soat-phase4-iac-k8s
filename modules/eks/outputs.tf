@@ -11,7 +11,7 @@ output "cluster_certificate_authority_data" {
 }
 
 output "oidc_provider_arn" {
-  value = aws_iam_openid_connect_provider.this.arn
+  value = var.use_existing_lab_role ? null : try(aws_iam_openid_connect_provider.this[0].arn, null)
 }
 
 output "oidc_issuer" {

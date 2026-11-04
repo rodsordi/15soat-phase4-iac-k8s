@@ -58,3 +58,9 @@ variable "newrelic_license_key" {
   sensitive   = true
   default     = "NRJS-DUMMY-LICENSE-KEY"
 }
+
+variable "use_existing_lab_role" {
+  type        = bool
+  description = "Whether to use pre-created AWS Academy LabRole instead of creating new IAM roles"
+  default     = true
+}
