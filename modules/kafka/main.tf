@@ -51,7 +51,7 @@ resource "kubernetes_manifest" "kafka_broker" {
     }
     spec = {
       kafka = {
-        version = "3.8.0"
+        version = "3.7.0"
         listeners = [
           {
             name = "plain"
