@@ -122,6 +122,7 @@ resource "aws_eks_node_group" "main" {
   node_role_arn   = var.use_existing_lab_role ? data.aws_iam_role.lab_role[0].arn : aws_iam_role.node_group[0].arn
   subnet_ids      = var.subnet_ids
   instance_types  = var.node_instance_types
+  ami_type        = var.ami_type
 
   scaling_config {
     desired_size = var.node_desired_size
