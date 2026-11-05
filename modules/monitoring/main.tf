@@ -10,6 +10,7 @@ resource "helm_release" "newrelic_bundle" {
   chart      = "nri-bundle"
   version    = "5.0.108"
   namespace  = kubernetes_namespace.monitoring.metadata[0].name
+  wait       = false
 
   set_sensitive {
     name  = "global.licenseKey"
