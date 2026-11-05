@@ -10,6 +10,8 @@ resource "helm_release" "strimzi_operator" {
   chart      = "strimzi-kafka-operator"
   version    = var.operator_version
   namespace  = kubernetes_namespace.kafka.metadata[0].name
+  wait       = true
+  timeout    = 300
 }
 
 resource "kubernetes_manifest" "kafka_cluster" {

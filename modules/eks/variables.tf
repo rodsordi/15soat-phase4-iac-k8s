@@ -54,3 +54,9 @@ variable "lab_role_name" {
   description = "Name of the existing IAM LabRole in AWS Academy"
   default     = "LabRole"
 }
+
+variable "ami_type" {
+  type        = string
+  description = "Type of Amazon Machine Image (AMI) associated with the EKS Node Group"
+  default     = "AL2023_x86_64_STANDARD"
+}
