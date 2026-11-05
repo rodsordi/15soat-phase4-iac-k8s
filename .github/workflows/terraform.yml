@@ -120,7 +120,16 @@ jobs:
           echo "Configuring kubectl context for EKS..."
           aws eks update-kubeconfig --name fiap-workshop-eks --region "${{ env.AWS_REGION }}"
 
-          echo "Phase 2: Provisioning Kubernetes Addons (Kong, Kafka, Monitoring)..."
+          echo "Phase 2: Provisioning Ingress, Monitoring, and Strimzi Operator..."
+          terraform apply \
+            -target=module.kong \
+            -target=module.monitoring \
+            -target=module.kafka.kubernetes_namespace.kafka \
+            -target=module.kafka.helm_release.strimzi_operator \
+            -target=kubernetes_namespace.workshop \
+            -auto-approve -no-color
+
+          echo "Phase 3: Provisioning Kafka Cluster and Workloads..."
           terraform apply -auto-approve -no-color
 
       - name: Publish Infrastructure Summary
