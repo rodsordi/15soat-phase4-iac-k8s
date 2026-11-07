@@ -49,7 +49,13 @@ variable "node_max_size" {
 variable "node_desired_size" {
   type        = number
   description = "Desired number of worker nodes"
-  default     = 3
+  default     = 2
+}
+
+variable "ami_type" {
+  type        = string
+  description = "Type of Amazon Machine Image (AMI) associated with the EKS Node Group"
+  default     = "BOTTLEROCKET_x86_64"
 }
 
 variable "newrelic_license_key" {
