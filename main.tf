@@ -17,6 +17,7 @@ module "eks" {
   node_min_size         = var.node_min_size
   node_max_size         = var.node_max_size
   node_desired_size     = var.node_desired_size
+  ami_type              = var.ami_type
   environment           = var.environment
   use_existing_lab_role = var.use_existing_lab_role
 }

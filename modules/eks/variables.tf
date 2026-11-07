@@ -35,7 +35,7 @@ variable "node_max_size" {
 
 variable "node_desired_size" {
   type    = number
-  default = 3
+  default = 2
 }
 
 variable "environment" {
@@ -58,5 +58,5 @@ variable "lab_role_name" {
 variable "ami_type" {
   type        = string
   description = "Type of Amazon Machine Image (AMI) associated with the EKS Node Group"
-  default     = "AL2023_x86_64_STANDARD"
+  default     = "BOTTLEROCKET_x86_64"
 }
