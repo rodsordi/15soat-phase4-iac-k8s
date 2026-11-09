@@ -68,6 +68,10 @@ resource "aws_eks_cluster" "this" {
   tags = {
     Name = var.cluster_name
   }
+
+  lifecycle {
+    ignore_changes = [version]
+  }
 }
 
 data "tls_certificate" "this" {
