@@ -58,5 +58,5 @@ variable "lab_role_name" {
 variable "ami_type" {
   type        = string
   description = "Type of Amazon Machine Image (AMI) associated with the EKS Node Group"
-  default     = "BOTTLEROCKET_x86_64"
+  default     = "AL2_x86_64"
 }
