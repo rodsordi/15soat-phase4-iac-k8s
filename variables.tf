@@ -65,6 +65,25 @@ variable "newrelic_license_key" {
   default     = "NRJS-DUMMY-LICENSE-KEY"
 }
 
+variable "newrelic_account_id" {
+  type        = string
+  description = "New Relic Account ID"
+  default     = "0"
+}
+
+variable "newrelic_api_key" {
+  type        = string
+  sensitive   = true
+  description = "New Relic User API Key (NRAK-...)"
+  default     = ""
+}
+
+variable "newrelic_region" {
+  type        = string
+  description = "New Relic Region (US or EU)"
+  default     = "US"
+}
+
 variable "use_existing_lab_role" {
   type        = bool
   description = "Whether to use pre-created AWS Academy LabRole instead of creating new IAM roles"

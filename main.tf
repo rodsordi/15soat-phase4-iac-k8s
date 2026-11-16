@@ -39,8 +39,11 @@ module "monitoring" {
 
   cluster_name         = var.cluster_name
   newrelic_license_key = var.newrelic_license_key
+  newrelic_account_id  = var.newrelic_account_id
+  newrelic_api_key     = var.newrelic_api_key
+  workload_namespace   = kubernetes_namespace.workshop.metadata[0].name
 
-  depends_on = [module.eks]
+  depends_on = [module.eks, kubernetes_namespace.workshop]
 }
 
 resource "kubernetes_namespace" "workshop" {

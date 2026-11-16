@@ -1,0 +1,90 @@
+{
+  "name": "Phase 4 - Infraestrutura K8s, Latencia de APIs & Microsservicos",
+  "description": "Latencia de APIs (p95/p99), Falhas HTTP, Consumo de Recursos e Disponibilidade dos Pods dos Microsservicos api-work-order, api-exec e api-billing",
+  "permissions": "PUBLIC_READ_WRITE",
+  "pages": [
+    {
+      "name": "Infraestrutura & Golden Signals",
+      "widgets": [
+        {
+          "title": "Latencia das APIs por Rota (p95 e p99)",
+          "layout": { "column": 1, "row": 1, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT percentile(http.server.requests * 1000, 95, 99) FROM Metric WHERE metricName = 'http.server.requests' AND uri NOT LIKE '%actuator%' FACET uri TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Erros e Falhas HTTP (4xx e 5xx)",
+          "layout": { "column": 7, "row": 1, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.table" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT count(*) FROM Metric WHERE metricName = 'http.server.requests' AND (status LIKE '4%' OR status LIKE '5%') FACET uri, status SINCE 6 hours ago"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Consumo de CPU por Pod (mCores)",
+          "layout": { "column": 1, "row": 5, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT average(cpuUsedCores * 1000) AS 'CPU (mCores)' FROM K8sContainerSample WHERE namespaceName = '${workload_namespace}' FACET podName TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Consumo de Memoria dos Pods (Working Set em MB)",
+          "layout": { "column": 7, "row": 5, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT average(memoryWorkingSetBytes / (1024 * 1024)) AS 'Memoria (MB)' FROM K8sContainerSample WHERE namespaceName = '${workload_namespace}' FACET podName TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Healthchecks & Uptime dos Pods (Disponibilidade %)",
+          "layout": { "column": 1, "row": 9, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT percentage(count(*), WHERE isReady = 1) AS 'Pod Ready Uptime %' FROM K8sPodSample WHERE namespaceName = '${workload_namespace}' SINCE 24 hours ago"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Reinicializacoes de Conteineres K8s (Restarts 24h)",
+          "layout": { "column": 7, "row": 9, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT max(restartCount) - min(restartCount) AS 'Restarts' FROM K8sContainerSample WHERE namespaceName = '${workload_namespace}' SINCE 24 hours ago"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

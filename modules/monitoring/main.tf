@@ -1,3 +1,20 @@
+terraform {
+  required_providers {
+    newrelic = {
+      source  = "newrelic/newrelic"
+      version = "~> 3.40"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.30"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.13"
+    }
+  }
+}
+
 resource "kubernetes_namespace" "monitoring" {
   metadata {
     name = var.namespace

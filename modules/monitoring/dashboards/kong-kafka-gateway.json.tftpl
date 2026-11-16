@@ -1,0 +1,77 @@
+{
+  "name": "Phase 4 - Borda API Gateway & Mensageria Kafka",
+  "description": "Monitoramento de disponibilidade do Kong Ingress Gateway, cluster Apache Kafka (Strimzi) e integracoes assincronas",
+  "permissions": "PUBLIC_READ_WRITE",
+  "pages": [
+    {
+      "name": "Gateway & Broker Health",
+      "widgets": [
+        {
+          "title": "Kong API Gateway - Disponibilidade dos Pods",
+          "layout": { "column": 1, "row": 1, "width": 4, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT latest(isReady) AS 'Kong Ready (1=Online)' FROM K8sPodSample WHERE podName LIKE '%kong%' SINCE 24 hours ago"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Apache Kafka - Disponibilidade dos Pods do Cluster",
+          "layout": { "column": 5, "row": 1, "width": 4, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT latest(isReady) AS 'Kafka Ready (1=Online)' FROM K8sPodSample WHERE namespaceName = 'infra-kafka' OR podName LIKE '%kafka%' SINCE 24 hours ago"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Erros de Mensageria Kafka em Logs (24h)",
+          "layout": { "column": 9, "row": 1, "width": 4, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT count(*) AS 'Falhas Kafka' FROM Log WHERE namespaceName = '${workload_namespace}' AND (message LIKE '%KafkaException%' OR message LIKE '%ProducerFencedException%' OR message LIKE '%BrokerNotAvailable%') SINCE 24 hours ago"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Volume de Requisicoes Processadas pelo Gateway por Rota",
+          "layout": { "column": 1, "row": 4, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT count(*) FROM Metric WHERE metricName = 'http.server.requests' AND uri NOT LIKE '%actuator%' FACET uri TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Consumo de Recursos do Kong Gateway (CPU e Memoria)",
+          "layout": { "column": 7, "row": 4, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT average(cpuUsedCores * 1000) AS 'CPU (mCores)', average(memoryWorkingSetBytes / (1024 * 1024)) AS 'Memoria (MB)' FROM K8sContainerSample WHERE containerName LIKE '%kong%' TIMESERIES"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

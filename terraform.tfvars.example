@@ -8,3 +8,5 @@ node_min_size        = 2
 node_max_size        = 5
 node_desired_size    = 3
 newrelic_license_key = "NRJS-0123456789abcdef"
+newrelic_account_id  = "1234567"
+newrelic_api_key     = "NRAK-ABCDEF1234567890"

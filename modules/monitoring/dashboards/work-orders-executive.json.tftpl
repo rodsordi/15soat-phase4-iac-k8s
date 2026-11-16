@@ -1,0 +1,103 @@
+{
+  "name": "Phase 4 - Painel Executivo de Negocios & SLAs da Oficina",
+  "description": "Monitoramento executivo do Tempo Medio de Execucao por Status da OS (DIAGNOSING, EXECUTING, FINISHED, COMPLETED, PAID, DELIVERED), Volume e Throughput de Negocio",
+  "permissions": "PUBLIC_READ_WRITE",
+  "pages": [
+    {
+      "name": "Work Orders & SLAs Executivos",
+      "widgets": [
+        {
+          "title": "Tempo Medio de Execucao por Status da OS",
+          "layout": { "column": 1, "row": 1, "width": 12, "height": 7 },
+          "visualization": { "id": "viz.bar" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT average(workorder.status.duration) / 1000 AS 'Tempo Medio (s)' FROM Metric WHERE metricName = 'workorder.status.duration' OR metricName = 'garage.workorder.status.duration' FACET status SINCE 24 hours ago"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Total de Ordens de Servico Criadas (24h)",
+          "layout": { "column": 1, "row": 8, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT count(*) AS 'Ordens Criadas' FROM Metric WHERE metricName = 'http.server.requests' AND uri = '/api/v1/work-orders' AND method = 'POST' AND status = '201' SINCE 24 hours ago"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Transicoes de Status Realizadas (24h)",
+          "layout": { "column": 4, "row": 8, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT count(*) AS 'Transicoes' FROM Metric WHERE metricName = 'http.server.requests' AND uri LIKE '/api/v1/work-orders/%' AND method = 'PATCH' SINCE 24 hours ago"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Pagamentos e Faturas Confirmados (Billing) (24h)",
+          "layout": { "column": 7, "row": 8, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT count(*) AS 'Pagamentos' FROM Metric WHERE metricName = 'http.server.requests' AND uri LIKE '%/payments/%' AND status = '200' SINCE 24 hours ago"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Veiculos Entregues e Quitados (24h)",
+          "layout": { "column": 10, "row": 8, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT count(*) AS 'Entregues' FROM Metric WHERE metricName = 'http.server.requests' AND uri LIKE '/api/v1/work-orders/%' AND method = 'PATCH' AND status = '200' SINCE 24 hours ago"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Throughput Operacional de Ordens por Minuto",
+          "layout": { "column": 1, "row": 11, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.area" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT rate(count(*), 1 minute) AS 'Throughput (req/min)' FROM Metric WHERE metricName = 'http.server.requests' AND uri LIKE '%/work-orders%' TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Volume Geral por Entidade da Oficina",
+          "layout": { "column": 7, "row": 11, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.pie" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT count(*) FROM Metric WHERE metricName = 'http.server.requests' FACET uri SINCE 24 hours ago LIMIT 8"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
