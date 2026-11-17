@@ -32,7 +32,7 @@ jobs:
     timeout-minutes: 45
 
     env:
-      AWS_REGION: ${{ vars.AWS_REGION || secrets.AWS_REGION || 'us-east-1' }}
+      AWS_REGION: ${{ vars.AWS_REGION || secrets.AWS_REGION || 'us-east-2' }}
       TF_VAR_newrelic_license_key: ${{ secrets.NEWRELIC_LICENSE_KEY || 'NRJS-DUMMY-LICENSE-KEY' }}
       TF_VAR_newrelic_account_id: ${{ secrets.NEWRELIC_ACCOUNT_ID || '0' }}
       TF_VAR_newrelic_api_key: ${{ secrets.NEWRELIC_API_KEY || '' }}
