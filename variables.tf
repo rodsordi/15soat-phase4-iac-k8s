@@ -30,8 +30,8 @@ variable "vpc_cidr" {
 
 variable "node_instance_types" {
   type        = list(string)
-  description = "Instance types for EKS worker nodes"
-  default     = ["t3a.large"]
+  description = "Instance types for EKS worker nodes (Free Tier eligible: m7i-flex.large has 2 vCPU, 8GB RAM)"
+  default     = ["m7i-flex.large"]
 }
 
 variable "node_min_size" {
