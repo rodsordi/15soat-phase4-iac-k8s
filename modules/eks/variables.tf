@@ -20,7 +20,7 @@ variable "subnet_ids" {
 
 variable "node_instance_types" {
   type    = list(string)
-  default = ["t3a.large"]
+  default = ["m7i-flex.large"]
 }
 
 variable "node_min_size" {
