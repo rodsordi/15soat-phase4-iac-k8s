@@ -60,6 +60,11 @@ resource "aws_eks_cluster" "this" {
     endpoint_public_access  = true
   }
 
+  access_config {
+    authentication_mode                         = "API_AND_CONFIG_MAP"
+    bootstrap_cluster_creator_admin_permissions = true
+  }
+
   depends_on = [
     aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy,
     aws_iam_role_policy_attachment.cluster_AmazonEKSVPCResourceController
@@ -70,7 +75,10 @@ resource "aws_eks_cluster" "this" {
   }
 
   lifecycle {
-    ignore_changes = [version]
+    ignore_changes = [
+      version,
+      access_config[0].bootstrap_cluster_creator_admin_permissions,
+    ]
   }
 }
 
@@ -146,5 +154,23 @@ resource "aws_eks_node_group" "main" {
 
   tags = {
     Name = "${var.cluster_name}-node"
+  }
+}
+
+data "aws_caller_identity" "current" {}
+
+resource "aws_eks_access_entry" "cicd" {
+  cluster_name  = aws_eks_cluster.this.name
+  principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/github-actions-cicd"
+  type          = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "cicd" {
+  cluster_name  = aws_eks_cluster.this.name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn = aws_eks_access_entry.cicd.principal_arn
+
+  access_scope {
+    type = "cluster"
   }
 }
