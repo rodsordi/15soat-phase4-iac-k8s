@@ -20,6 +20,7 @@ module "eks" {
   ami_type              = var.ami_type
   environment           = var.environment
   use_existing_lab_role = var.use_existing_lab_role
+  enable_irsa           = var.enable_irsa
 }
 
 module "kong" {

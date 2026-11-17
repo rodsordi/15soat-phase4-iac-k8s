@@ -49,6 +49,12 @@ variable "use_existing_lab_role" {
   default     = true
 }
 
+variable "enable_irsa" {
+  type        = bool
+  description = "Whether to create IAM OIDC Provider for IRSA (IAM Roles for Service Accounts). Disabled by default to support environments with restrictive SCPs."
+  default     = false
+}
+
 variable "lab_role_name" {
   type        = string
   description = "Name of the existing IAM LabRole in AWS Academy"
