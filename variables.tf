@@ -1,7 +1,7 @@
 variable "aws_region" {
   type        = string
   description = "AWS region"
-  default     = "us-east-1"
+  default     = "us-east-2"
 }
 
 variable "environment" {
@@ -87,5 +87,5 @@ variable "newrelic_region" {
 variable "use_existing_lab_role" {
   type        = bool
   description = "Whether to use pre-created AWS Academy LabRole instead of creating new IAM roles"
-  default     = true
+  default     = false
 }

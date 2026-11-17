@@ -1,4 +1,4 @@
-aws_region           = "us-east-1"
+aws_region           = "us-east-2"
 environment          = "prd"
 cluster_name         = "fiap-workshop-eks"
 cluster_version      = "1.30"

@@ -23,7 +23,7 @@ terraform {
   backend "s3" {
     bucket         = "fiap-phase4-terraform-state"
     key            = "iac-k8s/terraform.tfstate"
-    region         = "us-east-1"
+    region         = "us-east-2"
     dynamodb_table = "fiap-phase4-tf-lock"
     encrypt        = true
   }
