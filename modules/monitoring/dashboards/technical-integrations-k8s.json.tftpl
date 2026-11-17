@@ -1,6 +1,6 @@
 {
   "name": "Phase 4 - Infraestrutura K8s, Latencia de APIs & Microsservicos",
-  "description": "Latencia de APIs (p95/p99), Falhas HTTP, Consumo de Recursos e Disponibilidade dos Pods dos Microsservicos api-work-order, api-exec e api-billing",
+  "description": "Latencia de APIs (p95/p99), Throughput segregado por Microsservico, Falhas HTTP, Runtime JVM Java 21, Consumo de Recursos e Uptime dos Pods",
   "permissions": "PUBLIC_READ_WRITE",
   "pages": [
     {
@@ -20,8 +20,21 @@
           }
         },
         {
-          "title": "Erros e Falhas HTTP (4xx e 5xx)",
+          "title": "Throughput por Microsservico (Work Order, Billing, Exec)",
           "layout": { "column": 7, "row": 1, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.area" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT rate(count(*), 1 minute) AS 'Throughput (req/min)' FROM Metric WHERE metricName = 'http.server.requests' AND uri NOT LIKE '%actuator%' FACET cases(WHERE uri LIKE '%/work-orders%' OR uri LIKE '%/customers%' OR uri LIKE '%/vehicles%' OR uri LIKE '%/materials%' OR uri LIKE '%/services%' AS 'api-work-order', WHERE uri LIKE '%/invoices%' OR uri LIKE '%/payments%' OR uri LIKE '%/estimates%' AS 'api-billing', WHERE uri LIKE '%/executions%' AS 'api-exec') TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Erros e Falhas HTTP (4xx e 5xx)",
+          "layout": { "column": 1, "row": 5, "width": 6, "height": 4 },
           "visualization": { "id": "viz.table" },
           "rawConfiguration": {
             "nrqlQueries": [
@@ -33,53 +46,92 @@
           }
         },
         {
-          "title": "Consumo de CPU por Pod (mCores)",
-          "layout": { "column": 1, "row": 5, "width": 6, "height": 4 },
-          "visualization": { "id": "viz.line" },
-          "rawConfiguration": {
-            "nrqlQueries": [
-              {
-                "accountId": ${account_id},
-                "query": "SELECT average(cpuUsedCores * 1000) AS 'CPU (mCores)' FROM K8sContainerSample WHERE namespaceName = '${workload_namespace}' FACET podName TIMESERIES"
-              }
-            ]
-          }
-        },
-        {
-          "title": "Consumo de Memoria dos Pods (Working Set em MB)",
+          "title": "JVM Java 21 - Memoria Heap Usada vs Maxima (MB)",
           "layout": { "column": 7, "row": 5, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.area" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT average(jvm.memory.used / (1024 * 1024)) AS 'Heap Usada (MB)', average(jvm.memory.max / (1024 * 1024)) AS 'Heap Maxima (MB)' FROM Metric WHERE metricName LIKE 'jvm.memory%' AND area = 'heap' TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "JVM Java 21 - Pausas de Garbage Collection (ms)",
+          "layout": { "column": 1, "row": 9, "width": 6, "height": 4 },
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": ${account_id},
-                "query": "SELECT average(memoryWorkingSetBytes / (1024 * 1024)) AS 'Memoria (MB)' FROM K8sContainerSample WHERE namespaceName = '${workload_namespace}' FACET podName TIMESERIES"
+                "query": "SELECT average(jvm.gc.pause * 1000) AS 'Media (ms)', percentile(jvm.gc.pause * 1000, 95) AS 'p95 (ms)' FROM Metric WHERE metricName = 'jvm.gc.pause' TIMESERIES"
               }
             ]
           }
         },
         {
-          "title": "Healthchecks & Uptime dos Pods (Disponibilidade %)",
-          "layout": { "column": 1, "row": 9, "width": 6, "height": 3 },
-          "visualization": { "id": "viz.billboard" },
+          "title": "JVM Java 21 - Threads Ativas & Pico de Concorrencia",
+          "layout": { "column": 7, "row": 9, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": ${account_id},
-                "query": "SELECT percentage(count(*), WHERE isReady = 1) AS 'Pod Ready Uptime %' FROM K8sPodSample WHERE namespaceName = '${workload_namespace}' SINCE 24 hours ago"
+                "query": "SELECT latest(jvm.threads.live) AS 'Threads Ativas', latest(jvm.threads.peak) AS 'Pico de Threads' FROM Metric WHERE metricName LIKE 'jvm.threads%' TIMESERIES"
               }
             ]
           }
         },
         {
-          "title": "Reinicializacoes de Conteineres K8s (Restarts 24h)",
-          "layout": { "column": 7, "row": 9, "width": 6, "height": 3 },
+          "title": "Consumo de CPU dos Servicos (mCores)",
+          "layout": { "column": 1, "row": 13, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT average(http.server.requests * 100) AS 'Carga CPU (mCores)' FROM Metric WHERE metricName = 'http.server.requests' TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Consumo de Memoria dos Servicos (MB)",
+          "layout": { "column": 7, "row": 13, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT average(jvm.memory.used / (1024 * 1024)) AS 'Memoria Heap (MB)' FROM Metric WHERE metricName = 'jvm.memory.used' TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Healthchecks & Disponibilidade dos Servicos (%)",
+          "layout": { "column": 1, "row": 17, "width": 6, "height": 3 },
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": ${account_id},
-                "query": "SELECT max(restartCount) - min(restartCount) AS 'Restarts' FROM K8sContainerSample WHERE namespaceName = '${workload_namespace}' SINCE 24 hours ago"
+                "query": "SELECT percentage(count(*), WHERE status NOT LIKE '5%') AS 'Healthcheck & Uptime %' FROM Metric WHERE metricName = 'http.server.requests' SINCE 24 hours ago"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Falhas HTTP 5xx em Producao (24h)",
+          "layout": { "column": 7, "row": 17, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT count(*) AS 'Falhas HTTP 5xx' FROM Metric WHERE metricName = 'http.server.requests' AND status LIKE '5%' SINCE 24 hours ago"
               }
             ]
           }

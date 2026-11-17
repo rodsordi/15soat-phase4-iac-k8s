@@ -33,8 +33,34 @@
           }
         },
         {
-          "title": "HikariCP - Timeouts de Conexao (24h)",
-          "layout": { "column": 1, "row": 5, "width": 4, "height": 3 },
+          "title": "MongoDB - Pool de Conexoes (Tamanho vs Em Uso)",
+          "layout": { "column": 1, "row": 5, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT latest(mongodb.driver.pool.size) AS 'Pool Size', latest(mongodb.driver.pool.checkedout) AS 'Conexoes em Uso', latest(mongodb.driver.pool.waitqueuesize) AS 'Fila de Espera' FROM Metric WHERE metricName LIKE 'mongodb.driver.pool%' TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "MongoDB - Taxa de Comandos e Operacoes por Minuto",
+          "layout": { "column": 7, "row": 5, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.area" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT rate(count(*), 1 minute) AS 'Comandos Mongo / min' FROM Metric WHERE metricName = 'mongodb.driver.commands' TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "HikariCP - Timeouts (24h)",
+          "layout": { "column": 1, "row": 9, "width": 3, "height": 3 },
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
             "nrqlQueries": [
@@ -47,7 +73,7 @@
         },
         {
           "title": "HikariCP - Conexoes Ativas Atuais",
-          "layout": { "column": 5, "row": 5, "width": 4, "height": 3 },
+          "layout": { "column": 4, "row": 9, "width": 3, "height": 3 },
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
             "nrqlQueries": [
@@ -59,8 +85,21 @@
           }
         },
         {
+          "title": "MongoDB - Conexoes em Uso Atuais",
+          "layout": { "column": 7, "row": 9, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT latest(mongodb.driver.pool.checkedout) AS 'Mongo Checked Out' FROM Metric WHERE metricName = 'mongodb.driver.pool.checkedout'"
+              }
+            ]
+          }
+        },
+        {
           "title": "Erros de Persistencia em Logs (PostgreSQL / MongoDB) (24h)",
-          "layout": { "column": 9, "row": 5, "width": 4, "height": 3 },
+          "layout": { "column": 10, "row": 9, "width": 3, "height": 3 },
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
             "nrqlQueries": [

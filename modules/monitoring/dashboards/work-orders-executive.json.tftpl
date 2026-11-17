@@ -1,6 +1,6 @@
 {
   "name": "Phase 4 - Painel Executivo de Negocios & SLAs da Oficina",
-  "description": "Monitoramento executivo do Tempo Medio de Execucao por Status da OS (DIAGNOSING, EXECUTING, FINISHED, COMPLETED, PAID, DELIVERED), Volume e Throughput de Negocio",
+  "description": "Monitoramento executivo do Tempo Medio de Execucao por Status da OS (DIAGNOSING, EXECUTING, FINISHED, COMPLETED, PAID, DELIVERED), Faturamento e Throughput",
   "permissions": "PUBLIC_READ_WRITE",
   "pages": [
     {
@@ -46,14 +46,14 @@
           }
         },
         {
-          "title": "Pagamentos e Faturas Confirmados (Billing) (24h)",
+          "title": "Faturamento & Cobrancas (Billing) (24h)",
           "layout": { "column": 7, "row": 8, "width": 3, "height": 3 },
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": ${account_id},
-                "query": "SELECT count(*) AS 'Pagamentos' FROM Metric WHERE metricName = 'http.server.requests' AND uri LIKE '%/payments/%' AND status = '200' SINCE 24 hours ago"
+                "query": "SELECT count(*) AS 'Faturamento & Pagamentos' FROM Metric WHERE metricName = 'http.server.requests' AND (uri LIKE '%/payments%' OR uri LIKE '%/invoices%' OR uri LIKE '%/estimates%') AND (status = '200' OR status = '201') SINCE 24 hours ago"
               }
             ]
           }

@@ -1,33 +1,33 @@
 {
   "name": "Phase 4 - Borda API Gateway & Mensageria Kafka",
-  "description": "Monitoramento de disponibilidade do Kong Ingress Gateway, cluster Apache Kafka (Strimzi) e integracoes assincronas",
+  "description": "Monitoramento de disponibilidade do Kong Ingress Gateway, cluster Apache Kafka (Strimzi), Event Streaming da Saga Coreografada e integracoes assincronas",
   "permissions": "PUBLIC_READ_WRITE",
   "pages": [
     {
       "name": "Gateway & Broker Health",
       "widgets": [
         {
-          "title": "Kong API Gateway - Disponibilidade dos Pods",
+          "title": "Kong API Gateway - Disponibilidade & Uptime",
           "layout": { "column": 1, "row": 1, "width": 4, "height": 3 },
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": ${account_id},
-                "query": "SELECT latest(isReady) AS 'Kong Ready (1=Online)' FROM K8sPodSample WHERE podName LIKE '%kong%' SINCE 24 hours ago"
+                "query": "SELECT percentage(count(*), WHERE status < '500') AS 'Kong Gateway Uptime %' FROM Metric WHERE metricName = 'http.server.requests' SINCE 24 hours ago"
               }
             ]
           }
         },
         {
-          "title": "Apache Kafka - Disponibilidade dos Pods do Cluster",
+          "title": "Apache Kafka - Eventos Processados no Cluster (24h)",
           "layout": { "column": 5, "row": 1, "width": 4, "height": 3 },
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": ${account_id},
-                "query": "SELECT latest(isReady) AS 'Kafka Ready (1=Online)' FROM K8sPodSample WHERE namespaceName = 'infra-kafka' OR podName LIKE '%kafka%' SINCE 24 hours ago"
+                "query": "SELECT count(*) AS 'Eventos Kafka' FROM Metric WHERE metricName LIKE 'spring.kafka%' SINCE 24 hours ago"
               }
             ]
           }
@@ -46,8 +46,60 @@
           }
         },
         {
-          "title": "Volume de Requisicoes Processadas pelo Gateway por Rota",
+          "title": "Apache Kafka - Fluxo de Eventos por Topico da Saga (24h)",
           "layout": { "column": 1, "row": 4, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.area" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT count(*) FROM Log WHERE (message LIKE '%work-order-events%' OR message LIKE '%billing-events%' OR message LIKE '%execution-events%' OR message LIKE '%payment-events%') FACET cases(WHERE message LIKE '%work-order-events%' AS 'work-order-events', WHERE message LIKE '%billing-events%' AS 'billing-events', WHERE message LIKE '%execution-events%' AS 'execution-events', WHERE message LIKE '%payment-events%' AS 'payment-events') TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Apache Kafka - Latencia de Processamento dos Consumidores (ms)",
+          "layout": { "column": 7, "row": 4, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT average(spring.kafka.listener * 1000) AS 'Media (ms)', percentile(spring.kafka.listener * 1000, 95) AS 'p95 (ms)' FROM Metric WHERE metricName = 'spring.kafka.listener' TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Apache Kafka - Taxa de Publicacao de Eventos (Producers)",
+          "layout": { "column": 1, "row": 8, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.area" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT rate(count(*), 1 minute) AS 'Eventos Publicados / min' FROM Metric WHERE metricName = 'spring.kafka.template' TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Apache Kafka - Taxa de Processamento de Eventos (Consumers)",
+          "layout": { "column": 7, "row": 8, "width": 6, "height": 4 },
+          "visualization": { "id": "viz.area" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": ${account_id},
+                "query": "SELECT rate(count(*), 1 minute) AS 'Eventos Consumidos / min' FROM Metric WHERE metricName = 'spring.kafka.listener' TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Kong API Gateway - Volume de Requisicoes por Rota",
+          "layout": { "column": 1, "row": 12, "width": 6, "height": 4 },
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "nrqlQueries": [
@@ -59,14 +111,14 @@
           }
         },
         {
-          "title": "Consumo de Recursos do Kong Gateway (CPU e Memoria)",
-          "layout": { "column": 7, "row": 4, "width": 6, "height": 4 },
+          "title": "Kong API Gateway - Latencia de Borda das Rotas (ms)",
+          "layout": { "column": 7, "row": 12, "width": 6, "height": 4 },
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": ${account_id},
-                "query": "SELECT average(cpuUsedCores * 1000) AS 'CPU (mCores)', average(memoryWorkingSetBytes / (1024 * 1024)) AS 'Memoria (MB)' FROM K8sContainerSample WHERE containerName LIKE '%kong%' TIMESERIES"
+                "query": "SELECT average(http.server.requests * 1000) AS 'Media (ms)', percentile(http.server.requests * 1000, 95) AS 'p95 (ms)' FROM Metric WHERE metricName = 'http.server.requests' TIMESERIES"
               }
             ]
           }
